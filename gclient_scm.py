@@ -301,7 +301,7 @@ class GitWrapper(SCMWrapper):
     """Equivalent to git fetch; git reset."""
     self._SetFetchConfig(options)
 
-    self._Fetch(options, prune=True, quiet=options.verbose)
+    self._Fetch(options, prune=True, quiet=options.verbose, refspec=revision)
     self._Scrub(revision, options)
     if file_list is not None:
       files = self._Capture(
@@ -658,7 +658,7 @@ class GitWrapper(SCMWrapper):
 
     # Fetch upstream if we don't already have |revision|.
     if not scm.GIT.IsValidRevision(self.checkout_path, revision, sha_only=True):
-      self._Fetch(options, prune=options.force)
+      self._Fetch(options, prune=options.force, refspec=revision)
 
       if not scm.GIT.IsValidRevision(self.checkout_path, revision,
                                      sha_only=True):
@@ -933,7 +933,7 @@ class GitWrapper(SCMWrapper):
     else:
       # May exist in origin, but we don't have it yet, so fetch and look
       # again.
-      self._Fetch(options)
+      self._Fetch(options, refspec=rev)
       if scm.GIT.IsValidRevision(cwd=self.checkout_path, rev=rev):
         sha1 = rev
 
@@ -1069,7 +1069,7 @@ class GitWrapper(SCMWrapper):
       if template_dir:
         gclient_utils.rmtree(template_dir)
     self._SetFetchConfig(options)
-    self._Fetch(options, prune=options.force)
+    self._Fetch(options, prune=options.force, refspec=revision)
     revision = self._AutoFetchRef(options, revision)
     remote_ref = scm.GIT.RefToRemoteRef(revision, self.remote)
     self._Checkout(options, ''.join(remote_ref or revision), quiet=True)
